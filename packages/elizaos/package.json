@@ -1,0 +1,52 @@
+{
+  "name": "@promarty/plugin-blockchainiq",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Guarded ElizaOS action plugin for the Blockchain IQ x402 market brief; private pre-submission build.",
+  "exports": {
+    ".": "./src/index.js",
+    "./payment": "./src/sdk-payment.js"
+  },
+  "files": [
+    "src",
+    "scripts",
+    "test",
+    "README.md",
+    "VALIDATION.md",
+    "LICENSE",
+    "NOTICE.md",
+    "CHANGES.md",
+    "TESTS.md"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "smoke": "node scripts/smoke.js",
+    "quote": "node scripts/quote.js",
+    "wallet": "node scripts/owner-wallet-server.js",
+    "check": "node --check src/index.js && node --check src/runner.js && node --test test/*.test.js",
+    "run": "node scripts/run-env.js"
+  },
+  "overrides": {
+    "@ungap/structured-clone": "1.3.1",
+    "@elizaos/core": {
+      "pdfjs-dist": "5.4.149"
+    },
+    "@x402/core": {
+      "zod": "4.6.7"
+    },
+    "@x402/evm": {
+      "zod": "4.6.7"
+    }
+  },
+  "dependencies": {
+    "@elizaos/core": "1.7.2",
+    "@x402/core": "2.28.0",
+    "@x402/evm": "2.28.0",
+    "@x402/fetch": "2.28.0",
+    "viem": "2.57.11"
+  }
+}

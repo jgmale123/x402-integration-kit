@@ -1,0 +1,12 @@
+node_modules/
+*.egg-info/
+__pycache__/
+.venv/
+dist/
+.wrangler/
+.env
+.env.*
+*.key
+*.pem
+*wallet*.json
+*.log

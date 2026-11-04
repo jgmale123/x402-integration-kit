@@ -1,0 +1,28 @@
+{
+  "testedIntegrationCommit": "71060d9bb246ca2ea9f4d64af79bb97d86b300dd",
+  "framework": "Cloudflare Agents",
+  "runtime": "local Miniflare/workerd",
+  "resource": "https://www.blockchainiq.co/api/x402/v1/event-risk",
+  "httpStatus": 200,
+  "network": "eip155:8453",
+  "token": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+  "payer": "0xc26ab79b21827b54f9c8732c8e5cdc4b370f3b7e",
+  "recipient": "0x617da9383fba67e86137bc4924b8b7e400fb7c9e",
+  "amountAtoms": "50000",
+  "transaction": "0x29a7f07c94e6089fdd80f54ffb5412f217bbf621233d4933a2a7425d5fb1e33c",
+  "explorer": "https://basescan.org/tx/0x29a7f07c94e6089fdd80f54ffb5412f217bbf621233d4933a2a7425d5fb1e33c",
+  "block": "0x329e6f7",
+  "blockHash": "0xfc5fb8eaeb0565ebf4a1fb91a80cfb20d3f3223c794fa0e5d6bff32f12f13b26",
+  "observedAtHostTime": "2026-10-25T16:12:51.034Z",
+  "independentWitnesses": [
+    "https://mainnet.base.org",
+    "https://base-mainnet.public.blastapi.io"
+  ],
+  "receiptSuccessful": true,
+  "exactTransferVerified": true,
+  "originalAuthorizationNonceConsumed": true,
+  "finalizedAtObservation": false,
+  "paidResponseSha256": "673a9a4a1c3e6f501267b11af900b7bc3d53f1b0ebbf7ff1246b4bc8983fe0d6",
+  "expenseUsdc": "0.050000",
+  "bountyReview": "submitted; award and payment not yet received"
+}

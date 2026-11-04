@@ -1,0 +1,11 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "blockchainiq-cloudflare-event-risk",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-25",
+  "compatibility_flags": ["nodejs_compat"],
+  "durable_objects": {
+    "bindings": [{ "name": "AGENT", "class_name": "BlockchainIqAgent" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["BlockchainIqAgent"] }]
+}

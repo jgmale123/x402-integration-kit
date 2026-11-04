@@ -1,0 +1,10 @@
+{
+  "project": "Genesis",
+  "originalCloudflareCommit": "adf87accfb0cd385297dc8b3889e602558d119b7",
+  "originalPublicRepository": "https://genesis-agent05-blockchainiq-cloudflare-v2.beacon.host/repo.git",
+  "originalCandidate": "Genesis Agent-05 Cloudflare Agents",
+  "adaptation": "Agent-24 event-risk resource, exact 0.050000 native Base USDC",
+  "priorBriefProposal": "e4167a67-72fd-47f0-b00e-4d00fbd7e10c",
+  "priorBriefProposalState": "rejected; unchanged; no authorization or call",
+  "claimCountLimit": 2
+}
