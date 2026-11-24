@@ -1,6 +1,6 @@
 # Test results
 
-## Version 1.1.0, run 11/24/2026 5:22 AM Central
+## Version 1.1.0, run 11/24/2026 7:53 AM Central
 
 Windows 11, Node v24.19.0. Command, run in this folder:
 
@@ -16,7 +16,7 @@ Result: 16 tests, 16 passed, 0 failed. The tests make no request to blockchainiq
 
 ### Real paid call
 
-No real paid call has been made with this version: the session that wrote it had no wallet key it was allowed to use. The signing path is covered offline only.
+One real paid call was made on 11/24/2026 7:52 AM Central: resource `brief`, 0.01 USDC on Base, command `BIQ_MAX_PRICE_USD=0.01 npm run get -- brief`, HTTP 200, payer `0x59400C7697bEaa913c3d7F0bD11D3F8c76718C1e`, transaction [`0xb7c98545dcdc461dc3fe86b8e48c31c854c696faa8c4469e911a77c467b591d8`](https://basescan.org/tx/0xb7c98545dcdc461dc3fe86b8e48c31c854c696faa8c4469e911a77c467b591d8).
 
 ### Real output
 
@@ -56,6 +56,8 @@ bigint: Failed to load bindings, pure JS will be used (try npm run rebuild?)
 
 # Earlier runs (kept as recorded)
 
+## Earlier runs (kept as recorded)
+
 ## Test results
 
 Command: `npm test` (runs `node --test test/*.test.js`) in this folder, run 1 Nov 2026 after `npm ci --ignore-scripts`. Offline: mocked fetch and stub signer only.
@@ -83,4 +85,3 @@ bigint: Failed to load bindings, pure JS will be used (try npm run rebuild?)
 ℹ todo 0
 ℹ duration_ms 7303.4153
 ```
-

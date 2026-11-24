@@ -1,6 +1,6 @@
 # Test results
 
-## Version 0.2.0, run 11/24/2026 5:22 AM Central
+## Version 0.2.0, run 11/24/2026 7:53 AM Central
 
 Windows 11, Node v24.19.0. Command, run in this folder:
 
@@ -18,7 +18,7 @@ Result: TypeScript check clean; 36 tests, 36 passed, 0 failed (25 earlier tests 
 
 ### Real paid call
 
-No real paid call has been made with this version: the session that wrote it had no wallet key it was allowed to use. The signing path is covered offline only.
+One real paid call was made on 11/24/2026 7:53 AM Central: resource `brief`, 0.01 USDC on Base, command `MAX_PRICE_PER_CALL_USD=0.01 npm run resource -- brief --pay`, HTTP 200, payer `0x59400C7697bEaa913c3d7F0bD11D3F8c76718C1e`, transaction [`0x3587b2758b6d12721e327c0d959f00010e2ec34509383f89a535ae5e8197f078`](https://basescan.org/tx/0x3587b2758b6d12721e327c0d959f00010e2ec34509383f89a535ae5e8197f078).
 
 ### Real output
 
@@ -76,6 +76,8 @@ No real paid call has been made with this version: the session that wrote it had
 
 # Earlier runs (kept as recorded)
 
+## Earlier runs (kept as recorded)
+
 ## Test results
 
 Command (run in this folder, Node v24.19.0, after `npm ci --ignore-scripts --no-audit --no-fund`, 220 packages):
@@ -126,4 +128,3 @@ Real output:
 ℹ todo 0
 ℹ duration_ms 21087.7604
 ```
-

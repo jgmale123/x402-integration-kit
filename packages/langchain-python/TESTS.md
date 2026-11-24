@@ -1,6 +1,6 @@
 # Test results
 
-## Version 0.2.0, run 11/24/2026 5:22 AM Central
+## Version 0.2.0, run 11/24/2026 7:53 AM Central
 
 Windows 11, Python 3.12.10, x402 SDK 2.29.0, fresh virtual environment (`pip install -e ".[test]"`). Command, run in this folder:
 
@@ -16,7 +16,7 @@ Result: 46 passed, 4 skipped (18 earlier offline tests unchanged, 28 added in `t
 
 ### Real paid call
 
-No real paid call has been made with this version: the session that wrote it had no wallet key it was allowed to use. The signing path is covered offline only.
+One real paid call was made on 11/24/2026 7:53 AM Central: resource `brief`, 0.01 USDC on Base, command `BIQ_MAX_USDC_PER_CALL=0.01 python examples/get_resource.py brief --pay`, HTTP 200, payer `0x59400C7697bEaa913c3d7F0bD11D3F8c76718C1e`, transaction [`0xd18f949720f854835b186a0cdea61017a8e82900ff5dad795c2ee631f6daffe0`](https://basescan.org/tx/0xd18f949720f854835b186a0cdea61017a8e82900ff5dad795c2ee631f6daffe0).
 
 ### Real output
 
@@ -86,6 +86,8 @@ tests\test_offline.py::test_catalog_tool_formats_rows PASSED [100%]
 
 # Earlier runs (kept as recorded)
 
+## Earlier runs (kept as recorded)
+
 ## Test run
 
 Run on Sun 1 Nov 2026, about 2:05 AM Central, Windows 11, Python 3.14.8, in a fresh virtual environment created inside this folder (`.venv`, git-ignored). No call was made to blockchainiq.co; all HTTP responses are mocked.
@@ -136,4 +138,3 @@ After the `pyproject.toml` version pins were added and the package reinstalled, 
 ## What is not covered
 - The real x402 signing path (`x402ClientSync`, `register_exact_evm_client`, `wrapRequestsWithPayment`) is not exercised: tests replace the paying session with a fake. Signing was not run because it needs a wallet key and a paid call, which were out of scope.
 - The 4 skipped live tests and `examples/agent.py` (needs a model API key) were not run.
-
