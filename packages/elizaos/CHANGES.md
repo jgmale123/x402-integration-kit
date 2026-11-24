@@ -12,3 +12,15 @@ Source files `src/*`, upstream scripts and upstream tests are unchanged. `packag
 Not changed: `LICENSE`, `VALIDATION.md` (still the upstream author's 24-25 Oct record, including its bounty-claim note and its dependency audit statement), `.gitignore`.
 
 Observed, not fixed: `npm audit` on 1 Nov 2026 reported 7 vulnerabilities (4 low, 3 moderate), while `VALIDATION.md` records 0 moderate and 5 low. The difference was not investigated.
+
+## Version 0.2.0 (11/24/2026): every catalogue resource, and a fix for two-rail quotes
+
+These changes do alter upstream files. Each is marked in the code with "Changed by Blockchain IQ" or "Added by Blockchain IQ".
+
+1. `src/policy.js`, `src/sdk-payment.js`. Why: on 11/24/2026 the live API answered every paid resource with two payment options, USDC on Base and USDC on Solana, and the upstream rule "exactly one option" (`accepts.length !== 1`) refused them all. The rule is now: exactly one option on Base to the pinned payee and token; options on other networks are dropped unsigned. Both files are the same as in `packages/langchain-js`.
+2. `src/catalog.js` (new). Why: to offer every resource, not only the brief. Reads the free catalogue and builds one URL on the fixed origin from a resource id and its listed parameters.
+3. `src/client.js`. Why: rebuilt on the shared engine used in `packages/langchain-js`, with the same checks; `createBriefClient` keeps its behavior. Added `createBlockchainIqClient` with owner-set limits `maxPricePerCallUsd`, `maxPayments`, `maxTotalUsd`.
+4. `src/index.js`, `src/runner.js`. Added `createBlockchainIqCatalogPlugin` (action `BLOCKCHAINIQ_GET`, option `allowedResources`) and `createElizaCatalogRunner`. The brief plugin is unchanged.
+5. `scripts/get.js` (new) and the npm scripts `get` and `catalog`.
+6. `test/catalog-plugin.test.js` (new). 76 tests pass in total.
+7. `README.md`, `TESTS.md`, `package.json` (version 0.2.0, description, scripts).

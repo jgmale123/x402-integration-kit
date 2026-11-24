@@ -1,6 +1,35 @@
-# Blockchain IQ x402 brief plugin for ElizaOS
+# Blockchain IQ x402 plugins for ElizaOS
 
-Part of the Blockchain IQ x402 Integration Kit. A native ElizaOS action (`BLOCKCHAINIQ_MARKET_BRIEF`) that buys the Blockchain IQ market brief through x402.
+Part of the Blockchain IQ x402 Integration Kit. Two native ElizaOS actions that buy Blockchain IQ data through x402, in USDC on Base.
+
+| Action | What it reads | Cost |
+| --- | --- | --- |
+| `BLOCKCHAINIQ_GET` | Any resource in the live catalogue, by id | The resource's catalogue price, within your limits |
+| `BLOCKCHAINIQ_MARKET_BRIEF` | The market brief only (the original action) | $0.01 |
+
+The catalogue is at `https://www.blockchainiq.co/api/x402/v1` and changes as products are added. On 11/24/2026 it listed 49 resources: 6 free and 43 paid, from $0.01 to $19.00 a call. Run `npm run catalog` to print the current list.
+
+## Any catalogue resource (version 0.2.0)
+
+`createBlockchainIqCatalogPlugin({ ownerEntityId, onResult, paymentAdapter, allowPayment, maxPricePerCallUsd, maxPayments, maxTotalUsd, allowedResources })` returns an ElizaOS `Plugin` with the action `BLOCKCHAINIQ_GET`. Only a message from the configured operator can trigger it; that message names the resource in `content.resource` and its parameters in `content.params`. The result goes to your private `onResult` consumer and never into the action result, callbacks, memory or logs. `allowedResources`, when set, restricts the action to the ids you list.
+
+| Option | Meaning | Default |
+| --- | --- | --- |
+| `maxPricePerCallUsd` | Most one call may cost. A resource priced above it is refused before anything is signed. | `"0.05"` |
+| `maxPayments` | Most payments one client will ever sign | `1` |
+| `maxTotalUsd` | Most one client will ever spend | `maxPricePerCallUsd` x `maxPayments` |
+
+No setting can raise one call above $25.00. Every payment is pinned to the Blockchain IQ payee, USDC on Base and the exact URL being bought (`src/policy.js`). The live quote carries one option per rail (Base and Solana); only the Base option is ever signed.
+
+```sh
+npm run catalog                                  # free: every resource with price and parameters
+npm run get -- event-risk days=7                 # free: the server's price, nothing signed
+npm run get -- event-risk days=7 --allow-payment # one paid call; key from BIQ_X402_PRIVATE_KEY
+```
+
+`npm run get` pays at most `BIQ_MAX_PRICE_USD` (default `0.05`). To buy a dollar-priced resource, raise it on purpose.
+
+## The market brief action
 
 - Endpoint: `https://www.blockchainiq.co/api/x402/v1/brief`
 - Price: $0.01 per call, paid in USDC on Base (eip155:8453)

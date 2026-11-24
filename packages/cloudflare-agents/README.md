@@ -1,8 +1,41 @@
 # Blockchain IQ x402 on Cloudflare Agents
 
-A Cloudflare Agent (Durable Object) that pays for and fetches one Blockchain IQ x402 resource, with strict payment guards. Community code, credited in NOTICE.md and provided as is.
+A Cloudflare Agent (Durable Object) that pays for and fetches Blockchain IQ x402 resources, with strict payment guards. Community code, credited in NOTICE.md and provided as is.
 
-## What it does
+| Route | What it does | Cost |
+| --- | --- | --- |
+| `GET /catalog` | The live list of resources, with prices and parameters | Free |
+| `POST /resource` | Any resource in the catalogue, by id | The resource's catalogue price, within your limits |
+| `GET /ledger` | Your limits, what is reserved against them, and the record of every payment attempt | Free |
+| `POST /event-risk` | The event-risk resource only (the original route) | $0.05 |
+
+## Any catalogue resource (version 0.2.0)
+
+The catalogue is at `https://www.blockchainiq.co/api/x402/v1` and changes as products are added. On 11/24/2026 it listed 49 resources: 6 free and 43 paid, from $0.01 to $19.00 a call.
+
+`POST /resource` takes `{ "resource": "<id>", "params": { ... }, "confirmPayment": true }`. The body can name a catalogue resource and its listed parameters, and nothing else; the URL is built in code on the fixed Blockchain IQ origin. A free resource needs no `confirmPayment`. Limits are Worker variables that only the owner can set:
+
+| Variable | Meaning | Default |
+| --- | --- | --- |
+| `MAX_PRICE_PER_CALL_USD` | Most one call may cost. A resource priced above it is refused (HTTP 403) before any request to it. | `0.05` |
+| `MAX_PAYMENTS` | Most payments the Worker will ever sign on this route | `1` |
+| `MAX_TOTAL_USD` | Most the Worker will ever spend on this route | per-call limit x payments |
+
+No setting can raise one call above $25.00. The wallet never signs more than the catalogue price: a server quote above it is refused. Each payment is reserved in the Durable Object ledger before anything is signed and is never refunded automatically; when the limits are used up the route answers HTTP 409. The live quote carries one option per rail (Base and Solana); only the Base option, to the pinned payee in USDC, is ever signed. This route uses `PROJECT_EVM_PRIVATE_KEY` only (a protected authorization is bound to event-risk).
+
+One command, no server to start (it runs the Worker in the local workerd runtime, makes one request and exits):
+
+```
+npm run resource                              # free: every resource and price
+npm run resource -- sample                    # free resource
+npm run resource -- brief                     # shows the price; nothing is signed without --pay
+npm run resource -- brief --pay               # one paid call; key from PROJECT_EVM_PRIVATE_KEY
+npm run resource -- network chain=base --pay
+```
+
+That local run starts with an empty ledger each time; a deployed Worker keeps its ledger. With `npm start` (below), call it as `curl -X POST http://127.0.0.1:8787/resource -H "Authorization: Bearer $INVOCATION_TOKEN" -H "Content-Type: application/json" -d '{"resource":"brief","confirmPayment":true}'`; `npm start` passes the three limit variables through when they are set in your shell.
+
+## The event-risk route
 
 `POST /event-risk` makes one `GET https://www.blockchainiq.co/api/x402/v1/event-risk` through the x402 v2 client. That endpoint costs **0.05 USDC (50,000 atoms) on Base** per call and returns seven days of scheduled economic and crypto events. The code calls **event-risk only**. It does not call the `brief` endpoint (`/api/x402/v1/brief`, 0.01 USDC).
 

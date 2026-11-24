@@ -8,10 +8,30 @@ Credit: written by Astra Trading Co for Blockchain IQ's x402 build bounty (MIT).
 
 | action | endpoint | price |
 |---|---|---|
+| `BlockchainIQActionProvider_list_resources` | `https://www.blockchainiq.co/api/x402/v1` (the live catalogue) | free |
+| `BlockchainIQActionProvider_get_resource` (`resource`, optional `params`) | any resource in the catalogue, by id | its catalogue price, within your limits |
 | `BlockchainIQActionProvider_get_market_brief` | `https://www.blockchainiq.co/api/x402/v1/brief` | $0.01 USDC on Base |
 | `BlockchainIQActionProvider_get_event_risk` (optional `days`, 1 to 30) | `https://www.blockchainiq.co/api/x402/v1/event-risk` | $0.05 USDC on Base |
 
-Confirmed from `src/core.js`: base URL `https://www.blockchainiq.co/api/x402/v1`, brief price 0.01, event-risk price 0.05 (these are constants in the code; the live price is whatever the server's 402 challenge says, which this kit did not query). Only Base mainnet (`eip155:8453`) `exact` payments are registered, and any payment above `maxPerCall` (default $0.05) is refused before anything is signed.
+Confirmed from `src/core.js`: base URL `https://www.blockchainiq.co/api/x402/v1`, brief price 0.01, event-risk price 0.05 (these are constants in the code; the live price is whatever the server's 402 challenge says). Only Base mainnet (`eip155:8453`) `exact` payments are registered, and any payment above `maxPerCall` (default $0.05) is refused before anything is signed.
+
+## Any catalogue resource (version 1.1.0)
+
+The catalogue changes as products are added. On 11/24/2026 it listed 49 resources: 6 free and 43 paid, from $0.01 to $19.00 a call. `get_resource` takes a resource id from `list_resources` and that resource's listed parameters, and nothing else: the URL is built in code on the fixed Blockchain IQ origin.
+
+| Option | Meaning | Default |
+| --- | --- | --- |
+| `maxPerCall` | Most one call may cost, in USD. A resource priced above it is refused before anything is signed. Never above 25. | `0.05` |
+| `maxTotal` | Most `get_resource` may spend over the provider's life, in USD | no total limit |
+
+The live quote carries one option per rail (Base and Solana); the provider pays the Base option only.
+
+```bash
+npm run catalog                       # free: every resource with price and parameters
+npm run get -- research coin=bitcoin  # one real paid call; key from AGENT_PRIVATE_KEY
+```
+
+`npm run get` pays at most `BIQ_MAX_PRICE_USD` (default `0.05`).
 
 ## Install
 
