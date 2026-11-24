@@ -17,7 +17,15 @@ if (!token || token.length < 32) {
   process.exit(1);
 }
 const file = new URL("../.dev.vars", import.meta.url);
-writeFileSync(file, `INVOCATION_TOKEN=${token}\nPROJECT_EVM_PRIVATE_KEY=${key}\n`, { mode: 0o600 });
+// Added by Blockchain IQ: optional owner limits for POST /resource are passed through when set.
+let limits = "";
+for (const name of ["MAX_PRICE_PER_CALL_USD", "MAX_PAYMENTS", "MAX_TOTAL_USD"]) {
+  const value = process.env[name];
+  if (value === undefined) continue;
+  if (!/^[0-9]{1,5}(\.[0-9]{1,6})?$/.test(value)) { console.error(`${name} must be a plain number such as 0.05`); process.exit(1); }
+  limits += `${name}=${value}\n`;
+}
+writeFileSync(file, `INVOCATION_TOKEN=${token}\nPROJECT_EVM_PRIVATE_KEY=${key}\n${limits}`, { mode: 0o600 });
 try { chmodSync(file, 0o600); } catch {}
 console.error("Starting the local Worker on http://127.0.0.1:8787 (.dev.vars written; it is git-ignored).");
 const child = spawn(process.execPath, ["node_modules/wrangler/bin/wrangler.js", "dev", "--local", "--ip", "127.0.0.1"], { cwd: root, stdio: "inherit" });

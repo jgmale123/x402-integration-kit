@@ -1,12 +1,13 @@
 {
   "name": "blockchainiq-cloudflare-event-risk",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "scripts": {
     "test": "node --experimental-strip-types --test",
     "typecheck": "tsc --noEmit",
     "start": "node scripts/run-local.mjs",
+    "resource": "node scripts/get-resource.mjs",
     "check": "node node_modules/typescript/bin/tsc --noEmit && node --experimental-strip-types --test"
   },
   "dependencies": {

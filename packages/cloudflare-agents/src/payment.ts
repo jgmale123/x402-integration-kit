@@ -1,7 +1,8 @@
 import { x402Client } from "@x402/core/client";
 import { ExactEvmScheme } from "@x402/evm/exact/client";
 import { recoverTypedDataAddress } from "viem";
-import { NETWORK, PRICE_ATOMS, RECIPIENT, USDC, validatePaymentRequired, selectAllowedRequirement } from "./policy.ts";
+import { EVENT_RISK_POLICY, NETWORK, PRICE_ATOMS, RECIPIENT, USDC, validatePaymentRequired, selectAllowedRequirement } from "./policy.ts";
+import type { ResourcePolicy } from "./policy.ts";
 
 export const AUTH_TYPES = { TransferWithAuthorization: [
   { name: "from", type: "address" }, { name: "to", type: "address" },
@@ -16,23 +17,26 @@ const address = (a: unknown, b: string) => typeof a === "string" && a.toLowerCas
 const uint = (v: unknown) => typeof v === "bigint" && v >= 0n ? v : typeof v === "string" && /^(0|[1-9][0-9]*)$/.test(v) ? BigInt(v) : null;
 
 /** Validate the actual signing request, including fields generated inside the SDK. */
-export function validateAuthorization(request: SigningRequest, payer: string, now = Math.floor(Date.now() / 1000)): void {
+/** Changed by Blockchain IQ: `policy` sets the most the authorization may move; `expectedAtoms`, when given, is the exact quoted price. */
+export function validateAuthorization(request: SigningRequest, payer: string, now = Math.floor(Date.now() / 1000), policy: ResourcePolicy = EVENT_RISK_POLICY, expectedAtoms?: string): void {
   const { domain: d, types, message: m } = request;
   if (!record(d) || !record(m) || !record(types) || request.primaryType !== "TransferWithAuthorization") throw Error("Unsupported authorization type");
   if (!keys(d, ["name", "version", "chainId", "verifyingContract"]) || d.name !== "USD Coin" || d.version !== "2" || d.chainId !== 8453 || !address(d.verifyingContract, USDC)) throw Error("Unexpected signing domain");
   if (!keys(types, ["TransferWithAuthorization"]) || JSON.stringify(types) !== JSON.stringify(AUTH_TYPES)) throw Error("Unexpected authorization schema");
-  if (!keys(m, ["from", "to", "value", "validAfter", "validBefore", "nonce"]) || !address(m.from, payer) || !address(m.to, RECIPIENT) || uint(m.value) !== BigInt(PRICE_ATOMS)) throw Error("Unexpected authorization payment terms");
+  if (!keys(m, ["from", "to", "value", "validAfter", "validBefore", "nonce"]) || !address(m.from, payer) || !address(m.to, RECIPIENT)) throw Error("Unexpected authorization payment terms");
+  const value = uint(m.value);
+  if (value === null || value < 1n || value > BigInt(policy.maxAtoms) || (policy.exact && value !== BigInt(policy.maxAtoms)) || (expectedAtoms !== undefined && value !== BigInt(expectedAtoms))) throw Error("Unexpected authorization payment terms");
   const after = uint(m.validAfter), before = uint(m.validBefore);
   if (after === null || before === null || after > BigInt(now) || before < BigInt(now + 6) || before > BigInt(now + 300) || before <= after) throw Error("Authorization is outside the allowed remaining validity window");
   if (typeof m.nonce !== "string" || !/^0x[0-9a-fA-F]{64}$/.test(m.nonce)) throw Error("Malformed authorization nonce");
 }
 
-export function guardedSigner(signer: BriefSigner, clock = () => Math.floor(Date.now() / 1000)): BriefSigner {
+export function guardedSigner(signer: BriefSigner, clock = () => Math.floor(Date.now() / 1000), policy: ResourcePolicy = EVENT_RISK_POLICY, expectedAtoms: () => string | undefined = () => undefined): BriefSigner {
   let consumed = false;
   return { address: signer.address, async signTypedData(request) {
     if (consumed) throw Error("A signature was already attempted; reconcile the original operation");
     const snapshot = structuredClone(request);
-    validateAuthorization(snapshot, signer.address, clock());
+    validateAuthorization(snapshot, signer.address, clock(), policy, expectedAtoms());
     consumed = true;
     return signer.signTypedData(snapshot);
   } };
@@ -85,5 +89,24 @@ export function eventRiskClient(signer: BriefSigner, clock = () => Math.floor(Da
     paymentRequirementsSelector: (_version, requirements) => selectAllowedRequirement(requirements),
   });
   client.onBeforePaymentCreation(async ({ paymentRequired }) => { validatePaymentRequired(paymentRequired); });
+  return client;
+}
+
+/**
+ * Added by Blockchain IQ: a client for one purchase of any catalogue resource. The policy pins the URL and the most
+ * the call may cost; the signature must move exactly the amount the server quoted, in USDC on Base, to the pinned payee.
+ */
+export function resourceClient(signer: BriefSigner, policy: ResourcePolicy, clock = () => Math.floor(Date.now() / 1000)) {
+  let quoted: string | undefined;
+  const client = x402Client.fromConfig({
+    schemes: [{ network: NETWORK, client: new ExactEvmScheme(guardedSigner(signer, clock, policy, () => quoted)) }],
+    spendControls: { allowedAssets: [{ network: NETWORK, asset: USDC, maxAmountPerPayment: policy.maxAtoms }] },
+    paymentRequirementsSelector: (_version, requirements) => {
+      const selected = selectAllowedRequirement(requirements, policy);
+      quoted = selected.amount;
+      return selected;
+    },
+  });
+  client.onBeforePaymentCreation(async ({ paymentRequired }) => { validatePaymentRequired(paymentRequired, policy); });
   return client;
 }

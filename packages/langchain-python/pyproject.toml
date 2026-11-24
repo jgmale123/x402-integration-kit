@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "langchain-blockchainiq"
-version = "0.1.0"
+version = "0.2.0"
 description = "LangChain tools for Blockchain IQ's pay-per-call crypto data API (x402, USDC on Base). Made by ScrapeMole."
 readme = "README.md"
 license = { text = "MIT" }
