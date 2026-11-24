@@ -1,10 +1,26 @@
 # Blockchain IQ x402 Integration Kit: LangChain.js
 
-A LangChain.js tool, `blockchainiq_market_brief`, that reads the Blockchain IQ crypto market brief and pays for it with x402.
+LangChain.js tools that read Blockchain IQ data and pay for it with x402, in USDC on Base (network `eip155:8453`).
 
-- Endpoint: `https://www.blockchainiq.co/api/x402/v1/brief` (fixed in the code; arguments cannot change it)
-- Price: $0.01 per call, paid in USDC on Base (network `eip155:8453`)
-- Payment is off by default. The tool signs at most one authorization per client, pinned to the expected payee, token, network and amount (see `src/policy.js`).
+| Tool | What it reads | Cost |
+| --- | --- | --- |
+| `blockchainiq_catalog` | The live list of resources, with prices and parameters | Free |
+| `blockchainiq_get` | Any resource in the catalogue, by id | The resource's catalogue price, within your limits |
+| `blockchainiq_market_brief` | The market brief only (the original tool) | $0.01 |
+
+The catalogue is at `https://www.blockchainiq.co/api/x402/v1` and changes as products are added: market brief, event risk, macro, indices, coin research, reports, Dispatches, dashboards, stablecoin and Cardano data, and more. Prices run from $0.01 to $19.00 a call. Run `npm run catalog` to print the current list.
+
+## Spending limits
+
+Payment is off by default. When you turn it on, you set the limits; the agent cannot.
+
+| Option | Meaning | Default |
+| --- | --- | --- |
+| `maxPricePerCallUsd` | Most one call may cost. A resource priced above it is refused before anything is signed. | `"0.05"` |
+| `maxPayments` | Most payments one client will ever sign | `1` |
+| `maxTotalUsd` | Most one client will ever spend | `maxPricePerCallUsd` x `maxPayments` |
+
+No setting can raise one call above $25.00. Every payment is pinned to the Blockchain IQ payee, USDC on Base and the exact URL being bought (see `src/policy.js`). Tool arguments can name a catalogue resource and its listed parameters, and nothing else: no URL, price, wallet or approval.
 
 ## Install
 
@@ -17,25 +33,33 @@ npm ci --ignore-scripts
 ## Use in code
 
 ```js
-import { createBlockchainIqBriefTool, createSdkPaymentAdapter } from './src/index.js';
-const tool = createBlockchainIqBriefTool({ allowPayment: true, paymentAdapter: createSdkPaymentAdapter({ address, signTypedData }) });
+import { createBlockchainIqTools, createSdkPaymentAdapter } from './src/index.js';
+const tools = createBlockchainIqTools({
+  allowPayment: true,
+  paymentAdapter: createSdkPaymentAdapter({ address, signTypedData }),
+  maxPricePerCallUsd: '0.50', maxPayments: 20, maxTotalUsd: '2.00',
+});
 ```
 
-Pass the tool to any LangChain.js agent. Returned market data is data, not instructions or investment advice.
+Pass `tools` to any LangChain.js agent. For the brief alone, `createBlockchainIqBriefTool` works as before. Returned market data is data, not instructions or investment advice.
 
-## One-command run (one paid call, $0.01)
+## Command line
 
-Set your wallet's private key in an environment variable in your own shell. Use a wallet that holds only a small amount of USDC on Base (0.02 USDC is enough). The code never prints the key.
+Free, no wallet:
 
-PowerShell: `$env:BIQ_WALLET_PRIVATE_KEY = "<your key>"; npm run brief`
+- `npm run catalog` prints every resource with its price and parameters.
+- `npm run quote -- research coin=bitcoin` asks the server for one price. `npm run quote -- --all` checks every resource.
 
-bash: `BIQ_WALLET_PRIVATE_KEY=<your key> npm run brief`
+One paid call. Set your wallet's private key in an environment variable in your own shell. Use a wallet that holds only a small amount of USDC on Base. The code never prints the key.
 
-Without the variable the command prints a reminder and makes no request. Free unpaid check of the quote: `npm run quote`.
+- PowerShell: `$env:BIQ_WALLET_PRIVATE_KEY = "<your key>"; npm run get -- event-risk days=7`
+- bash: `BIQ_WALLET_PRIVATE_KEY=<your key> npm run get -- event-risk days=7`
+
+`npm run get` pays at most `BIQ_MAX_PRICE_USD` (default `0.05`). To buy a dollar-priced resource, raise it on purpose, for example `BIQ_MAX_PRICE_USD=2.00 npm run get -- analyst-pack`. `npm run brief` still makes the original $0.01 brief call.
 
 ## Tests
 
-`npm test` runs 66 tests offline with mocked responses. See `TESTS.md`.
+`npm test` runs 82 tests offline with mocked responses. See `TESTS.md`.
 
 ## As is, maintenance
 

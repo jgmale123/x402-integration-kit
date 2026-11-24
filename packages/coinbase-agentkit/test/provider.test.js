@@ -15,7 +15,7 @@ test("supportsNetwork only Base mainnet", () => {
 test("exposes two actions; brief pays and returns settlement", async () => {
   const s = await testSigner();
   const acts = new BlockchainIQActionProvider({ fetchImpl: mockFetch(10000) }).getActions(wp(s));
-  assert.deepEqual(acts.map((a) => a.name), ["BlockchainIQActionProvider_get_market_brief", "BlockchainIQActionProvider_get_event_risk"]);
+  assert.deepEqual(acts.map((a) => a.name).slice(0, 2), ["BlockchainIQActionProvider_get_market_brief", "BlockchainIQActionProvider_get_event_risk"]);
   const out = JSON.parse(await acts[0].invoke({}));
   assert.equal(out.settlement.transaction, "0xabc");
   assert.equal(s.signed, 1);

@@ -10,3 +10,15 @@ Additions:
 4. `README.md` replaced by the kit README; the upstream README is kept as `UPSTREAM-README.md`.
 5. `package.json`: added the `brief` script and the new files to `files`.
 6. `NOTICE.md`, `CHANGES.md`, `TESTS.md` (new).
+
+## Version 0.2.0 (11/24/2026): every catalogue resource, and a fix for two-rail quotes
+
+These changes do alter upstream files. Each is marked in the code with "Changed by Blockchain IQ" or "Added by Blockchain IQ".
+
+1. `src/policy.js`. Why: on 11/24/2026 the live API answered every paid resource with two payment options, USDC on Base and USDC on Solana, and the upstream rule "exactly one option" refused them all (`npm run quote` returned `UNSAFE_PAYMENT_QUOTE`). The rule is now: exactly one option on Base to the pinned payee and token; options on other networks are dropped unsigned. The URL and the largest amount are passed in as a context, which defaults to the brief at 0.01 USDC, so the original tool is unchanged. Added `usdToUnits`, `unitsToUsd`, `BRIEF_CONTEXT`, and a ceiling of 25.00 USDC per call that no option can raise.
+2. `src/catalog.js` (new). Why: to offer every resource, not only the brief. Reads the free catalogue, keeps well-formed GET entries, and builds one URL on the fixed origin from a resource id and its listed parameters.
+3. `src/index.js`. Why: the same guarded payment path now serves any catalogue resource. The upstream client logic moved into a shared engine with no change to its checks; `createBriefClient` and `createBlockchainIqBriefTool` keep their behavior. Added `createBlockchainIqClient` and `createBlockchainIqTools` (`blockchainiq_catalog`, `blockchainiq_get`) with owner-set limits: `maxPricePerCallUsd`, `maxPayments`, `maxTotalUsd`. The header size limit rose from 64 KB to 256 KB because live quotes carry example responses.
+4. `src/sdk-payment.js`. Why: the adapter must check the quote against the same context as the client, and the x402 SDK refuses payments above $1 unless told otherwise; its cap is now set to the call limit, for USDC on Base only.
+5. `scripts/quote.js` (changed), `scripts/catalog.js`, `scripts/get.js`, `scripts/args.js` (new) and the npm scripts `catalog` and `get`.
+6. `test/catalog-client.test.js` (new, 16 tests). The 66 earlier tests are unchanged and still pass.
+7. `README.md`, `TESTS.md`, `package.json` (version 0.2.0, description, scripts).
