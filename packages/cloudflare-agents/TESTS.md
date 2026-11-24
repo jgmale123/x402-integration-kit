@@ -1,5 +1,85 @@
 # Test results
 
+## Version 0.2.0, run 11/24/2026 7:53 AM Central
+
+Windows 11, Node v24.19.0. Command, run in this folder:
+
+```
+npm run check
+```
+
+Result: TypeScript check clean; 36 tests, 36 passed, 0 failed (25 earlier tests unchanged, 11 added in `test/resource.test.ts`). The tests make no request to blockchainiq.co and use no real key.
+
+### Live checks (free, nothing signed), 11/24/2026
+
+1. `npm run resource` listed the live catalogue through `GET /catalog` (49 resources).
+2. `npm run resource -- sample` returned the free sample through `POST /resource` (HTTP 200, nothing signed).
+3. `npm run resource -- brief` (no `--pay`) returned HTTP 400 with the price `$0.01` and signed nothing.
+
+### Real paid call
+
+One real paid call was made on 11/24/2026 7:53 AM Central: resource `brief`, 0.01 USDC on Base, command `MAX_PRICE_PER_CALL_USD=0.01 npm run resource -- brief --pay`, HTTP 200, payer `0x59400C7697bEaa913c3d7F0bD11D3F8c76718C1e`, transaction [`0x3587b2758b6d12721e327c0d959f00010e2ec34509383f89a535ae5e8197f078`](https://basescan.org/tx/0x3587b2758b6d12721e327c0d959f00010e2ec34509383f89a535ae5e8197f078).
+
+### Real output
+
+```
+> blockchainiq-cloudflare-event-risk@0.2.0 check
+> node node_modules/typescript/bin/tsc --noEmit && node --experimental-strip-types --test
+
+✔ fixture success: 402 challenge, one paid retry, JSON result and provider-reported evidence (2350.82ms)
+✔ fixture 402 challenge with changed terms is refused before anything is signed (2224.0358ms)
+✔ fixture 402 with no PAYMENT-REQUIRED header is refused without signing (2019.3284ms)
+✔ fixture HTTP error after payment returns 502, retains evidence, and a retry is refused (1888.8932ms)
+✔ fixture HTTP error on the unpaid request (500, no challenge) returns 502 and signs nothing (1982.2445ms)
+✔ fixture malformed paid body (200 but not JSON) returns 502 and the receipt is retained (2110.9254ms)
+✔ fixture malformed PAYMENT-RESPONSE header is not accepted as a receipt (1721.352ms)
+✔ fixture malformed request body to the Worker is rejected with 400 and makes no outbound call (1840.183ms)
+✔ pinned x402 SDK passes the strict actual signing-request guard (18.0636ms)
+✔ protected adapter preserves original nonce, validity and signature through the SDK (16.634ms)
+✔ a calibrated chain clock rejects a capability that a slow host still accepts (12.8729ms)
+✔ protected adapter verifies signature, original intent and every signed payment field (10.6912ms)
+✔ invalid actual SDK signing requests never reach the underlying signer (4.0504ms)
+✔ protected proof cannot change during recovery and concurrent payload creation is refused (20.5362ms)
+✔ a receipt is provider evidence, and missing or inconsistent evidence is never settlement (0.6518ms)
+✔ accepts the observed exact five-cent Base USDC requirement (3.0649ms)
+✔ the separate one-cent brief invoice cannot authorize an event-risk purchase (0.9314ms)
+✔ rejects changed or ambiguous payment terms (0.5125ms)
+✔ accepts only the fixed GET resource and exact current challenge (0.7753ms)
+✔ two-rail quotes: the Base option is chosen and the Solana option is dropped (3.4138ms)
+✔ catalogue parsing keeps well-formed GET entries and builds URLs on the fixed origin only (3.8413ms)
+✔ limits: defaults, owner values, and refusal of malformed or over-ceiling values (1.1342ms)
+✔ GET /catalog lists the resources and a free resource is read without signing or using the ledger (2507.276ms)
+✔ a paid resource is bought once from a two-rail quote; the default single payment is then used up (2026.153ms)
+✔ a price above the per-call limit is refused before any request to the resource (1799.2043ms)
+✔ owner limits: a raised per-call limit buys the 2.00 resource; the total limit stops the next payment (2071.1069ms)
+✔ a server quote above the catalogue price is never signed, and the reservation is kept (1951.5615ms)
+✔ a quote with a changed payee, a second Base option, or no Base option is never signed (5260.3393ms)
+✔ bad requests are refused with no payment: unknown id, bad parameters, no confirmation, body naming a URL (1750.8647ms)
+✔ misconfiguration fails closed: malformed limits, or a protected authorization instead of a key (3328.6501ms)
+✔ local Agent runtime preserves one-call state: receipt (2246.884ms)
+✔ local Agent runtime preserves one-call state: protected-receipt (1935.7056ms)
+✔ local Agent runtime preserves one-call state: protected-clock-receipt (1903.5986ms)
+✔ local Agent runtime preserves one-call state: missing-receipt (2080.1045ms)
+✔ local Agent runtime preserves one-call state: lost-response (1834.7463ms)
+✔ local Agent runtime preserves one-call state: redirect (1845.4472ms)
+ℹ tests 36
+ℹ suites 0
+ℹ pass 36
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 28596.9636
+```
+
+<!-- earlier runs below -->
+
+# Earlier runs (kept as recorded)
+
+## Earlier runs (kept as recorded)
+
+## Test results
+
 Command (run in this folder, Node v24.19.0, after `npm ci --ignore-scripts --no-audit --no-fund`, 220 packages):
 
 ```

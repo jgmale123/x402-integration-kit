@@ -9,6 +9,9 @@ from langchain_blockchainiq.tools import (
     BlockchainIQBriefTool,
     BlockchainIQCatalogTool,
     BlockchainIQEventRiskTool,
+    BlockchainIQGetTool,
+    BlockchainIQResourceListTool,
+    get_blockchainiq_catalog_tools,
     get_blockchainiq_tools,
 )
 
@@ -18,6 +21,9 @@ __all__ = [
     "BlockchainIQBriefTool",
     "BlockchainIQCatalogTool",
     "BlockchainIQEventRiskTool",
+    "BlockchainIQGetTool",
+    "BlockchainIQResourceListTool",
+    "get_blockchainiq_catalog_tools",
     "get_blockchainiq_tools",
 ]
-__version__ = "0.1.0"
+__version__ = "0.2.0"

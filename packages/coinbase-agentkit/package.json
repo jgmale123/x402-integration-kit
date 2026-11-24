@@ -1,11 +1,13 @@
 {
   "name": "blockchainiq-x402-agentkit",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Coinbase AgentKit action provider for Blockchain IQ's x402 pay-per-call crypto data API (USDC on Base)",
   "main": "src/index.js",
   "scripts": {
     "test": "node --test test/*.test.js",
-    "example": "node examples/paid-call.js"
+    "example": "node examples/paid-call.js",
+    "catalog": "node examples/get-resource.js --list",
+    "get": "node examples/get-resource.js"
   },
   "author": "Astra Trading Co",
   "license": "MIT",

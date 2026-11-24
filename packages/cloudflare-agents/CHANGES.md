@@ -15,3 +15,15 @@ Observed in the source and deliberately not changed (not verified as a bug, beha
 - `src/policy.ts` error text says "approved brief URL" although the resource is event-risk. Text only.
 - The Worker allows exactly one paid call per Durable Object state, by design (the one-call latch). To make a second paid call, use a new local state.
 - `LIVE_PAYMENT.json`, `VALIDATION.md` and `SOURCE_ORIGIN.json` are the author's records of its own bounty claim and are kept unchanged. LIVE_PAYMENT.json holds only public transaction data (addresses, transaction hash, block hash, a response checksum); it holds no key, token or secret. Its statements about the bounty review are the author's, as of 25 Oct 2026.
+
+## Version 0.2.0 (11/24/2026): every catalogue resource, and a fix for two-rail quotes
+
+These changes do alter files under `src/`. Each is marked in the code with "Changed by Blockchain IQ" or "Added by Blockchain IQ". The statement above that `src/` is byte-identical to the source no longer holds.
+
+1. `src/policy.ts`. Why: on 11/24/2026 the live API answered every paid resource with two payment options, USDC on Base and USDC on Solana, and the source rule "exactly one option" (`requirements.length !== 1`) refused them all, so `POST /event-risk` could no longer pay. The rule is now: exactly one option on Base that matches the policy; options on other networks are ignored and never signed. The checks take a policy object (the exact URL, the most the call may cost, and whether the price must equal it); the default policy is the original event-risk rule at exactly 0.05 USDC. Added `usdToAtoms` and a ceiling of 25.00 USDC a call.
+2. `src/payment.ts`. `validateAuthorization` and `guardedSigner` take the policy; added `resourceClient`, which signs exactly the amount the server quoted and never more than the policy allows. The event-risk clients are unchanged in behavior.
+3. `src/catalog.ts`, `src/limits.ts` (new). The free catalogue reader and URL builder, and the owner limits `MAX_PRICE_PER_CALL_USD`, `MAX_PAYMENTS`, `MAX_TOTAL_USD`.
+4. `src/index.ts`. Added `GET /catalog`, `POST /resource` and `GET /ledger`. A payment is reserved in Durable Object storage before anything is signed and is never refunded automatically. The wallet signs at most the catalogue price, which is stricter than the other packages (they allow a quote up to the per-call limit). `POST /event-risk`, `/health` and `/receipt` are unchanged.
+5. `test/resource.test.ts` (new, 11 tests). The 25 earlier tests are unchanged and still pass.
+6. `scripts/get-resource.mjs` (new) and the npm script `resource`; `scripts/run-local.mjs` passes the three limit variables through when set.
+7. `README.md`, `TESTS.md`, `package.json` (version 0.2.0).
